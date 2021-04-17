@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>WyzePlugControl</AssemblyName>
+    <RootNamespace>WyzePlugControl</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>WyzePlug Control</Product>
+    <Description>Turning Wyze plug on and off.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WyzeApi\WyzeApi.csproj" />
+  </ItemGroup>
+
+</Project>
