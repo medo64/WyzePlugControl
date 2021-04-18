@@ -15,6 +15,11 @@
   <PropertyGroup>
     <Product>WyzePlug Control</Product>
     <Description>Turning Wyze plug on and off.</Description>
+    <Authors>Josip Medved</Authors>
+    <Version>0.0.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
   </PropertyGroup>
 
   <PropertyGroup>
