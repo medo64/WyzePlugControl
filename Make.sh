@@ -108,15 +108,16 @@ function release() {
     mkdir -p "$BASE_DIRECTORY/build/release/"
     dotnet publish "$BASE_DIRECTORY/src/WyzePlugControl/WyzePlugControl.csproj" \
                     --force \
+                    --self-contained true \
+                    --runtime $RUNTIME_ID \
+                    -p:Version=$PACKAGE_VERSION \
+                    -p:DebugType=embedded \
+                    -p:Deterministic=true \
+                    -p:Optimize=true \
+                    -p:PublishSingleFile=true \
+                    -p:EnableCompressionInSingleFile=true \
                     -c Release \
                     -o bin/ \
-                    -p:Version=$PACKAGE_VERSION \
-                    -p:Deterministic=true \
-                    -p:PublishSingleFile=true \
-                    -p:PublishTrimmed=true \
-                    -p:DebugType=embedded \
-                    --self-contained true \
-                    -r $RUNTIME_ID \
                     || return 1
     echo "${ANSI_CYAN}Output in 'bin/'${ANSI_RESET}"
 }
