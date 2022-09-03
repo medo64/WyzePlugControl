@@ -10,6 +10,7 @@ namespace WyzePlugControl {
 
             var email = Environment.GetEnvironmentVariable("WYZE_EMAIL") ?? "";
             var password = Environment.GetEnvironmentVariable("WYZE_PASSWORD") ?? "";
+            var totp = Environment.GetEnvironmentVariable("WYZE_TOTP") ?? "";
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)){
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Must define WYZE_EMAIL and WYZE_PASSWORD environment variables.");
@@ -18,7 +19,7 @@ namespace WyzePlugControl {
             }
 
             using var wyze = new Wyze();
-            if (wyze.Login(email, password)) {
+            if (wyze.Login(email, password, totp)) {
                 foreach (var device in wyze.GetDevices()) {
                     if (device is WyzePlugDevice plug) {
                         if (plug.Id == plugId) {

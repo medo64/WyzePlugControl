@@ -16,7 +16,8 @@
             "stopAtEntry": false,
             "env": {
                 "WYZE_EMAIL": "unknown@example.com",
-                "WYZE_PASSWORD": "changeme"
+                "WYZE_PASSWORD": "changeme",
+                "WYZE_TOTP": "0123456789abcdef"
             }
         },
         {

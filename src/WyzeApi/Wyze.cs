@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Medo.Security.Cryptography;
 
 namespace WyzeApi {
     /// <summary>
@@ -19,28 +20,66 @@ namespace WyzeApi {
         /// </summary>
         /// <param name="email">User email.</param>
         /// <param name="password">User password.</param>
-        public bool Login(string email, string password) {
-            var req = new HttpRequestMessage(HttpMethod.Post, ApiUrlLogin);
-            req.Headers.Add("x-api-key", ApiKey);
-            req.Headers.Add("phone-id", ApiPhoneId);
+        /// <param name="totpKey">TOTP key.</param>
+        public bool Login(string email, string password, string? totpKey) {
+            var reqLogin = new HttpRequestMessage(HttpMethod.Post, ApiUrlLogin);
+            reqLogin.Headers.Add("x-api-key", ApiKey);
+            reqLogin.Headers.Add("phone-id", ApiPhoneId);
 
-            req.Content = GetJsonContentType(new {
+            var md5Password = ToMd5(ToMd5(ToMd5(password)));
+            reqLogin.Content = GetJsonContentType(new {
                 email,
-                password = ToMd5(ToMd5(ToMd5(password))),
+                password = md5Password,
             });
 
-            string jsonText;
+            LoginJson loginJson;
             try {
-                var res = HttpClient.Send(req);
-                jsonText = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var resLogin = HttpClient.Send(reqLogin);
+                var jsonText = resLogin.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 Debug.WriteLine("[Wyze] Login: " + jsonText);
-            } catch {
+                loginJson = JsonSerializer.Deserialize<LoginJson>(jsonText);
+            } catch (Exception ex) {
+                Debug.WriteLine("[Wyze] Login exception: " + ex.Message);
                 return false;
             }
 
-            var json = PartiallyParseJson(jsonText);
-            if (json.TryGetValue("access_token", out var accessToken)) {
-                AccessToken = accessToken;
+            if (loginJson.AccessToken != null) {  // no MFA is needed
+                AccessToken = loginJson.AccessToken;
+                return true;
+            }
+
+            if (!Array.Exists(loginJson.MfaOptions, element => element == "TotpVerificationCode")) {  // no TOTP
+                return false;
+            }
+
+            if (totpKey == null) { return false; }  // no key, nothing to do
+
+            var reqLogin2 = new HttpRequestMessage(HttpMethod.Post, ApiUrlLogin);
+            reqLogin2.Headers.Add("x-api-key", ApiKey);
+            reqLogin2.Headers.Add("phone-id", ApiPhoneId);
+
+            var mfaCode = new OneTimePassword(totpKey);
+            reqLogin2.Content = GetJsonContentType(new {
+                email,
+                password = md5Password,
+                verification_id = "8b4e53d0-0f83-4b8e-9078-2311d0b0badd",
+                mfa_type = "TotpVerificationCode",
+                verification_code= mfaCode.GetCode().ToString("000000"),
+            });
+
+            LoginJson login2Json;
+            try {
+                var resLogin2 = HttpClient.Send(reqLogin2);
+                var jsonText = resLogin2.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                Debug.WriteLine("[Wyze] Login2: " + jsonText);
+                login2Json = JsonSerializer.Deserialize<LoginJson>(jsonText);
+            } catch (Exception ex) {
+                Debug.WriteLine("[Wyze] Login2 exception: " + ex.Message);
+                return false;
+            }
+
+            if (login2Json.AccessToken != null) {
+                AccessToken = login2Json.AccessToken;
                 return true;
             } else {
                 return false;
