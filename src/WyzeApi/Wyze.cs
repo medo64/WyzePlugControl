@@ -15,6 +15,15 @@ namespace WyzeApi {
     /// </summary>
     public sealed class Wyze : IDisposable {
 
+        public Wyze(string apiKeyId, string apiKey) {
+            ApiKeyId = apiKeyId;
+            ApiKey = apiKey;
+        }
+
+        private readonly string ApiKeyId;
+        private readonly string ApiKey;
+
+
         /// <summary>
         /// Logs user in. Needs to be done before any other action.
         /// </summary>
@@ -23,8 +32,9 @@ namespace WyzeApi {
         /// <param name="totpKey">TOTP key.</param>
         public bool Login(string email, string password, string? totpKey) {
             var reqLogin = new HttpRequestMessage(HttpMethod.Post, ApiUrlLogin);
-            reqLogin.Headers.Add("x-api-key", ApiKey);
-            reqLogin.Headers.Add("phone-id", ApiPhoneId);
+            reqLogin.Headers.Add("Keyid", ApiKeyId);
+            reqLogin.Headers.Add("Apikey", ApiKey);
+            reqLogin.Headers.Add("user-agent", "wyze_android_2.11.40");
 
             var md5Password = ToMd5(ToMd5(ToMd5(password)));
             reqLogin.Content = GetJsonContentType(new {
@@ -56,7 +66,7 @@ namespace WyzeApi {
 
             var reqLogin2 = new HttpRequestMessage(HttpMethod.Post, ApiUrlLogin);
             reqLogin2.Headers.Add("x-api-key", ApiKey);
-            reqLogin2.Headers.Add("phone-id", ApiPhoneId);
+            reqLogin2.Headers.Add("phone-id", ApiKeyId);
 
             var mfaCode = new OneTimePassword(totpKey);
             reqLogin2.Content = GetJsonContentType(new {
@@ -64,7 +74,7 @@ namespace WyzeApi {
                 password = md5Password,
                 verification_id = "8b4e53d0-0f83-4b8e-9078-2311d0b0badd",
                 mfa_type = "TotpVerificationCode",
-                verification_code= mfaCode.GetCode().ToString("000000"),
+                verification_code = mfaCode.GetCode().ToString("000000"),
             });
 
             LoginJson login2Json;
@@ -106,7 +116,7 @@ namespace WyzeApi {
                     sc = "9f275790cab94a72bd206c8876429f3c",
                     sv = "9d74946e652647e9b6c9d59326aef104",
                     app_ver = ApiAppVersion,
-                    phone_id = ApiPhoneId,
+                    phone_id = ApiKeyId,
                     ts = (DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds,
                 })
             };
@@ -153,7 +163,7 @@ namespace WyzeApi {
                 sc = "a626948714654991afd3c0dbd7cdb901",
                 sv = "011a6b42d80a4f32b4cc24bb721c9c96",
                 app_ver = ApiAppVersion,
-                phone_id = ApiPhoneId,
+                phone_id = ApiKeyId,
                 provider_key = device.ProductModel,
                 instance_id = device.Id,
                 action_key = newState ? "power_on" : "power_off",
@@ -201,12 +211,10 @@ namespace WyzeApi {
 
         #region API
 
-        public readonly string ApiUrlLogin = "https://auth-prod.api.wyze.com/user/login";
+        public readonly string ApiUrlLogin = "https://auth-prod.api.wyze.com/api/user/login";
         public readonly string ApiUrlDeviceList = "https://api.wyzecam.com/app/v2/home_page/get_object_list";
         public readonly string ApiUrlRunAction = "https://api.wyzecam.com/app/v2/auto/run_action";
 
-        public readonly string ApiKey = "RckMFKbsds5p6QY3COEXc2ABwNTYY0q18ziEiSEm";
-        public readonly string ApiPhoneId = "411e313a-9f9e-11eb-a8b3-0242ac130005";
         public readonly string ApiAppVersion = "com.hualai___2.11.40";
 
         #endregion API

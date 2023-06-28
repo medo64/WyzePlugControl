@@ -11,6 +11,15 @@ namespace WyzePlugControl {
 
             var plugId = (args.Length >= 1) ? args[0] : "";
 
+            var apiKeyId = Environment.GetEnvironmentVariable("WYZE_APIKEYID") ?? "";
+            var apiKey = Environment.GetEnvironmentVariable("WYZE_APIKEY") ?? "";
+            if (string.IsNullOrEmpty(apiKeyId) || string.IsNullOrEmpty(apiKey)) {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Must define WYZE_APIKEYID and WYZE_APIKEY environment variables.");
+                Console.ResetColor();
+                Environment.Exit(1);
+            }
+
             var email = Environment.GetEnvironmentVariable("WYZE_EMAIL") ?? "";
             var password = Environment.GetEnvironmentVariable("WYZE_PASSWORD") ?? "";
             var totp = Environment.GetEnvironmentVariable("WYZE_TOTP") ?? "";
@@ -22,7 +31,7 @@ namespace WyzePlugControl {
             }
 
             WyzePlugDevice? selectedPlug = null;
-            using var wyze = new Wyze();
+            using var wyze = new Wyze(apiKeyId, apiKey);
             if (wyze.Login(email, password, totp)) {
                 foreach (var device in wyze.GetDevices()) {
                     if (device is WyzePlugDevice plug) {
