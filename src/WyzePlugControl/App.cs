@@ -5,6 +5,8 @@ namespace WyzePlugControl {
     internal static class App {
 
         public static void Main(string[] args) {
+            Medo.Application.SingleInstance.Attach();  // will exit on its own
+
             var plugId = (args.Length >= 1) ? args[0] : "";
             var desiredState = (args.Length >= 2) ? args[1] : "";
 
