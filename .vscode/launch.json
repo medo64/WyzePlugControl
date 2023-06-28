@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/WyzePlugControl/bin/Debug/net6.0/WyzePlugControl.dll",
+            "program": "${workspaceFolder}/src/WyzePlugControl/bin/Debug/net7.0/WyzePlugControl.dll",
             "args": [ "2CAA8E6616D2", "" ],
             "cwd": "${workspaceFolder}/src",
             "console": "integratedTerminal",
