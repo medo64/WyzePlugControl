@@ -80,7 +80,7 @@ namespace WyzePlugControl {
                     var outputText = result.StandardOutput.ReadToEnd();
                     var nextState = !Grep(outputText, "[off]");
 
-                    if (DateTime.Now.Hour is < 8 or >= 22) { nextState = false; }  // force disable between 22:00 and 08:00
+                    if (DateTime.Now.Hour is < 8 or >= 20) { nextState = false; }  // force disable between 20:00 and 08:00
 
                     if (nextState != lastState) {
                         selectedPlug.SetPowerState(nextState);
